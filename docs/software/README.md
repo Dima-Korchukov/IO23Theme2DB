@@ -2,8 +2,8 @@
 ## SQL-скрипт для створення та початкового наповнення бази даних
 ```SQL
 -- Створення бази даних
-CREATE DATABASE your_database_name;
-USE your_database_name;
+CREATE DATABASE my_database;
+USE my_database;
 
 -- Створення таблиці USER
 CREATE TABLE USER (
@@ -232,7 +232,7 @@ if __name__ == '__main__':
 import os
 
 class Config:
-    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:1234@localhost/your_database_name'
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:1234@localhost/my_database'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 ```
 ### Models.py
