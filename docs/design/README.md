@@ -158,4 +158,4 @@ Data "0,*" -- "1,1" Tag
 
 ## Реляційна схемa
 
-![relation_scheme](./relationalsscheme1.png)
+![relation_scheme](./relationscheme1.png)
