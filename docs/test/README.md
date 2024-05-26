@@ -1,37 +1,37 @@
 # Тестування працездатності системи
 Для тестування системи використовувся додаток Postman
 ## Запуск сервера
- ![](./restart_server.png)
+ ![](./start_server.png)
  
 ## Метод POST
- ![](./Post.png)
+ ![](./post.png)
 
 ### Перевірка за допомогою GET
- ![](./user_created.png)
+ ![](./Get_post.png)
 
 ## Метод PUT
- ![](./put_test.png)
+ ![](./put.png)
 
 ### Перевірка за допомогою GET
- ![](./put_changes.png)
+ ![](./Get_put.png)
  
  ## Метод DELETE
- ![](./Deleted.png)
+ ![](./delete.png)
 
 ### Перевірка за допомогою GET
- ![](./deleted_complete.png)
+ ![](./Get_delete.png)
 
  ## Метод PATCH
-  ![](./Patch.png)
+  ![](./patch.png)
  
 ### Перевірка за допомогою GET
- ![](./patch_checked.png)
+ ![](./Get_patch.png)
 
  ## Метод GET(id)
-  ![](./Get.png)
+  ![](./get_id.png)
   
  ## Метод GET(all)
- ![](./get_all.png)
+ ![](./Get_all.png)
  
  
 
