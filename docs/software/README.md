@@ -209,7 +209,7 @@ SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
 ```python
 from flask import Flask, request, jsonify
 from config import Config
-from models import db, User
+from models import db, User, Permission, Role, Tag, Data, Comment, Request
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -235,10 +235,10 @@ def call_create_tables():
 def create_user():
     data = request.get_json()
     new_user = User(
-        USER_email=data['USER_email'],
-        USER_name=data['USER_name'],
-        USER_login=data['USER_login'],
-        USER_password=data['USER_password']
+        email=data['email'],
+        username=data['username'],
+        login=data['login'],
+        password=data['password']
     )
     db.session.add(new_user)
     db.session.commit()
@@ -248,21 +248,21 @@ def create_user():
 def get_user(id):
     user = User.query.get_or_404(id)
     return jsonify({
-        "idUSER": user.idUSER,
-        "USER_email": user.USER_email,
-        "USER_name": user.USER_name,
-        "USER_login": user.USER_login,
-        "USER_password": user.USER_password
+        "idUser": user.idUser,
+        "email": user.email,
+        "username": user.username,
+        "login": user.login,
+        "password": user.password
     })
 
 @app.route('/users/<int:id>', methods=['PUT'])
 def update_user(id):
     user = User.query.get_or_404(id)
     data = request.get_json()
-    user.USER_email = data['USER_email']
-    user.USER_name = data['USER_name']
-    user.USER_login = data['USER_login']
-    user.USER_password = data['USER_password']
+    user.email = data['email']
+    user.username = data['username']
+    user.login = data['login']
+    user.password = data['password']
     db.session.commit()
     return jsonify({"message": "User updated"}), 200
 
@@ -279,11 +279,11 @@ def get_all_users():
     users_data = []
     for user in users:
         user_data = {
-            "idUSER": user.idUSER,
-            "USER_email": user.USER_email,
-            "USER_name": user.USER_name,
-            "USER_login": user.USER_login,
-            "USER_password": user.USER_password
+            "idUser": user.idUser,
+            "email": user.email,
+            "username": user.username,
+            "login": user.login,
+            "password": user.password
         }
         users_data.append(user_data)
     return jsonify(users_data)
@@ -292,14 +292,14 @@ def get_all_users():
 def partial_update_user(id):
     user = User.query.get_or_404(id)
     data = request.get_json()
-    if 'USER_email' in data:
-        user.USER_email = data['USER_email']
-    if 'USER_name' in data:
-        user.USER_name = data['USER_name']
-    if 'USER_login' in data:
-        user.USER_login = data['USER_login']
-    if 'USER_password' in data:
-        user.USER_password = data['USER_password']
+    if 'email' in data:
+        user.email = data['email']
+    if 'username' in data:
+        user.username = data['username']
+    if 'login' in data:
+        user.login = data['login']
+    if 'password' in data:
+        user.password = data['password']
     db.session.commit()
     return jsonify({"message": "User updated partially"}), 200
 
@@ -311,7 +311,7 @@ if __name__ == '__main__':
 import os
 
 class Config:
-    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:1234@localhost/my_database'
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:1234@localhost/mydb'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 ```
 ### Models.py
@@ -321,62 +321,60 @@ from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 
 class User(db.Model):
-    __tablename__ = 'USER'
-    idUSER = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    USER_email = db.Column(db.String(45), nullable=False)
-    USER_name = db.Column(db.String(45), nullable=False)
-    USER_login = db.Column(db.String(45), nullable=False)
-    USER_password = db.Column(db.String(45), nullable=False)
-
-class Admin(db.Model):
-    __tablename__ = 'ADMIN'
-    idADMIN = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    USER_idUSER = db.Column(db.Integer, db.ForeignKey('USER.idUSER'))
-
-class Request(db.Model):
-    __tablename__ = 'REQUEST'
-    idREQUEST = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    REQUEST_type = db.Column(db.Integer, nullable=False)
-    REQUEST_message = db.Column(db.String(1000), nullable=False)
-    USER_idUSER = db.Column(db.Integer, db.ForeignKey('USER.idUSER'))
-    ADMIN_idADMIN = db.Column(db.Integer, db.ForeignKey('ADMIN.idADMIN'))
-
-class Data(db.Model):
-    __tablename__ = 'DATA'
-    idDATA = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    DATA_name = db.Column(db.String(45), nullable=False)
-    DATA_format = db.Column(db.String(45), nullable=False)
-    DATA_date = db.Column(db.DateTime, nullable=False)
-    REQUEST_idREQUEST = db.Column(db.Integer, db.ForeignKey('REQUEST.idREQUEST'))
-
-class Coment(db.Model):
-    __tablename__ = 'COMENT'
-    idCOMENT = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    COMENT_text = db.Column(db.String(1000), nullable=False)
-    USER_idUSER = db.Column(db.Integer, db.ForeignKey('USER.idUSER'))
-    DATA_idDATA = db.Column(db.Integer, db.ForeignKey('DATA.idDATA'))
-
-class Tag(db.Model):
-    __tablename__ = 'TAG'
-    idTAG = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    TAG_name = db.Column(db.String(1000), nullable=False)
-
-class DataHasTag(db.Model):
-    __tablename__ = 'DATA_has_TAG'
-    DATA_idDATA = db.Column(db.Integer, db.ForeignKey('DATA.idDATA'), primary_key=True)
-    TAG_idTAG = db.Column(db.Integer, db.ForeignKey('TAG.idTAG'), primary_key=True)
-
-class DataHasAdmin(db.Model):
-    __tablename__ = 'DATA_has_ADMIN'
-    DATA_idDATA = db.Column(db.Integer, db.ForeignKey('DATA.idDATA'), primary_key=True)
-    ADMIN_idADMIN = db.Column(db.Integer, db.ForeignKey('ADMIN.idADMIN'), primary_key=True)
+    __tablename__ = 'User'
+    idUser = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    password = db.Column(db.String(45), nullable=False)
+    login = db.Column(db.String(45), unique=True, nullable=False)
+    username = db.Column(db.String(45), unique=True, nullable=False)
+    email = db.Column(db.String(45), unique=True, nullable=False)
+    roles = db.relationship('Role', backref='user', lazy=True)
+    comments = db.relationship('Comment', backref='user', lazy=True)
+    requests = db.relationship('Request', backref='user', lazy=True)
 
 class Permission(db.Model):
-    __tablename__ = 'PERMISSION'
-    PERMISSION_comm = db.Column(db.String(100))
-    PERMISSION_post = db.Column(db.String(100))
-    USER_idUSER = db.Column(db.Integer, db.ForeignKey('USER.idUSER'), primary_key=True)
-    ADMIN_idADMIN = db.Column(db.Integer, db.ForeignKey('ADMIN.idADMIN'), primary_key=True)
+    __tablename__ = 'Permission'
+    idPermission = db.Column(db.Integer, primary_key=True)
+    Post = db.Column(db.Boolean, nullable=True)
+    Comment = db.Column(db.Boolean, nullable=True)
+    Edit = db.Column(db.Boolean, nullable=True)
+    Delete = db.Column(db.Boolean, nullable=True)
+    roles = db.relationship('Role', backref='permission', lazy=True)
+
+class Role(db.Model):
+    __tablename__ = 'Role'
+    idRole = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    RoleName = db.Column(db.String(45), nullable=True)
+    Permission_idPermission = db.Column(db.Integer, db.ForeignKey('Permission.idPermission'), nullable=False)
+    User_idUser = db.Column(db.Integer, db.ForeignKey('User.idUser'), nullable=False)
+
+class Tag(db.Model):
+    __tablename__ = 'Tag'
+    idTag = db.Column(db.Integer, primary_key=True)
+    TagName = db.Column(db.String(45), nullable=True)
+    data = db.relationship('Data', backref='tag', lazy=True)
+
+class Data(db.Model):
+    __tablename__ = 'Data'
+    idData = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    Date = db.Column(db.DateTime, nullable=True)
+    DataName = db.Column(db.String(45), nullable=True)
+    DataFormat = db.Column(db.String(45), nullable=True)
+    Tag_idTag = db.Column(db.Integer, db.ForeignKey('Tag.idTag'), nullable=False)
+    comments = db.relationship('Comment', backref='data', lazy=True)
+    requests = db.relationship('Request', backref='data', lazy=True)
+
+class Comment(db.Model):
+    __tablename__ = 'Comment'
+    CommentText = db.Column(db.Text, nullable=False)
+    User_idUser = db.Column(db.Integer, db.ForeignKey('User.idUser'), primary_key=True)
+    Data_idData = db.Column(db.Integer, db.ForeignKey('Data.idData'), primary_key=True)
+
+class Request(db.Model):
+    __tablename__ = 'Request'
+    idRequest = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    Type = db.Column(db.String(45), nullable=True)
+    User_idUser = db.Column(db.Integer, db.ForeignKey('User.idUser'), nullable=False)
+    Data_idData = db.Column(db.Integer, db.ForeignKey('Data.idData'), nullable=False)
 ```
 
 
